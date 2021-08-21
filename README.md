@@ -29,18 +29,20 @@ The script is a bash script with few dependencies: bc, jq and mosquitto-clients.
  
  ## Problems and investigations
  This script has been tested on
- * a Raspberry Pi, model 2+ running Raspbian distribution Buster
- * an Odroid-XU4 running [DietPi](https://www.dietpi.com) distribution
- 
- When debugging, it is recommanded to lower the value of the `update_rate` variable to few seconds (e.g.`update_rate=5`).
+ * a Raspberry Pi, model 2+ running RaspiOS distribution `2021-05-07-raspios-buster-armhf-lite`
+ * an Odroid-XU4 running [DietPi](https://www.dietpi.com) distribution `DietPi_OdroidXU4-ARMv7-Buster`
+
+In case it does not work properly on your system, belw is a list of suggestions to investigate the issues.
+  When debugging, it is recommanded to lower the value of the `update_rate` variable to few seconds (e.g.`update_rate=5`).
  * After each change of the script, do not forget to restart the service `sudo systemctl restart flightmonitor_MQTTtoHA`
  * After each change of the service file (`/etc/systemd/system/flightmonitor_MQTTtoHA.service`), do not forget to relaunch systemd:  
  `sudo systemctl daemon-reload`  
  `sudo systemctl restart flightmonitor_MQTTtoHA`
- 1. Check service status: `sudo systemctl status flightmonitor_MQTTtoHA`
- 2. Check MQTT messages are publish in the topics configured by the variables at the begining of the script. For instance assuming `mqtt_topic_prefix="flightmonitor"` and `dump1090_subtopic="dump1090"` and that the MQTT borker runs on the same machine:
+ 1. Check the file `flightmonitor_MQTTtoHA.service` can be found in `/etc/systemsd/system` directory
+ 2. Check service status: `sudo systemctl status flightmonitor_MQTTtoHA`
+ 3. Check MQTT messages are publish in the topics configured by the variables at the begining of the script. For instance assuming `mqtt_topic_prefix="flightmonitor"` and `dump1090_subtopic="dump1090"` and that the MQTT borker runs on the same machine:
  `mosquitto_sub -h 127.0.0.1 -p 1883 -t flightmonitor/dump1090`. 
- 3. Check MQTT discovery messages are sent when the service start/re-start with `mosquitto_sub`. For instance:
+ 3. Check MQTT discovery messages are published when the service start/re-start. For instance:
  `mosquitto_sub -h 127.0.0.1 -p 1883 -t homeassistant/# -v`
  
  
