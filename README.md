@@ -21,7 +21,7 @@ The script is a bash script with few dependencies: bc, jq and mosquitto-clients.
     * the topic prefix for discovery (by default `discovery_prefix`="homeassistant" as mentionned [here](https://www.home-assistant.io/docs/mqtt/discovery/))
     * a suffix (for instance the machine nickname "_RPi4-Kitchen") that is appended to the unique identifier of the sensors (in case the script runs on several machines connected to the same instance of Home Assistant)
     * `use_device=0` or `use_device=1`. If `use_device` is equal to 1, the entities linked with a source (i.e. fr24feed, dump1090-fa or piaware) are linked to a device in Home Assistant. The device name is equal to the MQTT sub-topic appended with the `unique_id_suffix`. This option eases the integration in Home Assistant: when the device is selected in the 'Configuration' menu, an entity-card with all linked entities can be directly added to one of your panel.
-3. launch the script and check new entities are available in Home Assistant
+3. Launch the script and check new entities are available in Home Assistant
   * `bash flightmonitor_MQTTtoHA.sh`
   * or `./flightmonitor_MQTTtoHA.sh` in case you previously set the execution permission to the file (`chmod a+x flightmonitor_MQTTtoHA.sh`)
  
