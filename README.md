@@ -8,7 +8,7 @@ Below is a screenshot of a Home Assistant tab on which are dislayed the sensors 
 ## Installation
 The script has been written with the assumption of a standard installation of [FlightAware](https://www.flightaware.com) and [Fligtradar24](https://www.flightradar24.com) programs, according to:
 * [this page](https://flightaware.com/adsb/piaware/install) for FlightAware
-* [this page]() for Flightradar24 (option 2)
+* [this page](https://www.flightradar24.com/share-your-data) for Flightradar24 (download and run bach script `install_fr24_rpi.sh`)
 
 The script is a bash script with few dependencies: bc, jq and mosquitto-clients. If not already on your machine, they can be installed by:
 `sudo apt-get install bc jq mosquitto-clients`
