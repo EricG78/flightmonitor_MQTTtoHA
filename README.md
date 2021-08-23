@@ -2,7 +2,7 @@
 
 The objectives of this project is to display in [Home Assistant](https://www.home-assistant.io) some basic information from a system running an ADS-B receiver (dump1090-fa) that feeds servers [Fligtradar24](https://www.flightradar24.com) and/or [FlightAware](https://www.flightaware.com).
 The bash script collects information and publish JSON MQTT messages. To ease the integration with Home Assistant, MQTT discovery messages declaring all sensors supported by the script are also published when the script/service starts.
-Below is a screenshot of a Home Assistant tab on which are dislayed the sensors values handled by the script (with some history cards and some weblinks added).
+Below is a screenshot of a Home Assistant tab on which are dislayed the sensors values handled by the script (titles, weblinks and history graphs were added manually).
 ![Screenshot of Home Assistant tab with the sensors handled by the script](/images/screenshot_sensors_inHA.png)
 
 ## Installation
