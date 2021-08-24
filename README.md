@@ -1,5 +1,6 @@
 # flightmonitor_MQTTtoHA
 
+## Introduction
 The objectives of this project is to display in [Home Assistant](https://www.home-assistant.io) some basic information from a system running an ADS-B receiver (dump1090-fa) that feeds servers [Fligtradar24](https://www.flightradar24.com) and/or [FlightAware](https://www.flightaware.com).
 The bash script collects information and publish JSON MQTT messages. To ease the integration with Home Assistant, MQTT discovery messages declaring all sensors supported by the script are also published when the script/service starts.
 Below is a screenshot of a Home Assistant tab on which are dislayed the sensors values handled by the script (titles, weblinks and history graphs were added manually).
@@ -90,8 +91,8 @@ When the script or service is laucnhed, the MQTT discovery messages are publishe
 
 The script monitors the status of Home Assistant by subscribing to the topic `homeassistant/status`. If Home Assistant restarts, its status becomes `offline` and gets back to `online` when ready: this event triggers the publishing by the script of the discovery messages.
  
- ## Problems and investigations
- This script has been tested on
+## Problems and investigations
+This script has been tested on
  * a Raspberry Pi, model 2+ running [RaspiOS](https://www.raspberrypi.org/software/operating-systems/) distribution `2021-05-07-raspios-buster-armhf-lite`
  * an Odroid-XU4 running [DietPi](https://www.dietpi.com) distribution `DietPi_OdroidXU4-ARMv7-Buster`
 
