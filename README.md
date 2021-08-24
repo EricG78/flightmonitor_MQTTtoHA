@@ -45,16 +45,16 @@ The parameters of the MQTT message are derived from the JSON file `http://127.0.
 The parameters of the MQTT message are derived from the output of the command `piaware-status`. For example:
     ```JSON
     {
-     "piaware_problem":"OFF",
-     "faup1090_problem":"OFF",
-         "faup978_problem":"ON",
-         "mlat_problem":"OFF",
-         "dump1090_problem":"OFF",
-         "faup1090dump1090_connection":"ON",
-         "piawareserver_connection":"ON",
-         "data3005_problem":"OFF"
-         }
-```
+       "piaware_problem":"OFF",
+       "faup1090_problem":"OFF",
+       "faup978_problem":"ON",
+       "mlat_problem":"OFF",
+       "dump1090_problem":"OFF",
+       "faup1090dump1090_connection":"ON",
+       "piawareserver_connection":"ON",
+       "data3005_problem":"OFF"
+     }
+    ```
  In Home Assistant, 
   * the fields piaware_problem, faup1090_problem, faup978_problem, mlat_problem, dump1090_problem and data3005_problem are declared as binary sensors with device class "problem".
   * the fields faup1090dump1090_connection and piawareserver_connection are declared as binary sensors with device class "connectivity".
