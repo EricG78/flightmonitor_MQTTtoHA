@@ -86,7 +86,9 @@ The parameters of the MQTT message are derived from the output of the command `p
   * the fields faup1090dump1090_connection and piawareserver_connection are declared as binary sensors with device class "connectivity".
 
 ### Home Assistant
-The script monitors the status of Home Assistant by subscribing to the topic `homeassistant/status`. If Home Assistant restarts, its status becomes `offline` and gets back to `online` when ready: this triggers that publishing by the script of the discovery messages.
+When the script or service is laucnhed, the MQTT discovery messages are published.
+
+The script monitors the status of Home Assistant by subscribing to the topic `homeassistant/status`. If Home Assistant restarts, its status becomes `offline` and gets back to `online` when ready: this event triggers the publishing by the script of the discovery messages.
  
  ## Problems and investigations
  This script has been tested on
