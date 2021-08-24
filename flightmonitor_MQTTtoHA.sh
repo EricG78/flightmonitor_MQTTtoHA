@@ -23,18 +23,18 @@ mqtt_broker_ip="192.168.0.1"
 #pwd="pwd"
 
 # Topics for the JSON messages
-mqtt_topic_prefix="domotique/flightmonitor"
+mqtt_topic_prefix="flightmonitor"
 fr24feed_subtopic="fr24feed"
 dump1090_subtopic="dump1090"
 piaware_subtopic="piaware"
 
 # Delay between messages (in seconds)
-update_rate=5
+update_rate=60
 
 # Discovery prefix for Home Assistant (defualt is homeassistant. See https://www.home-assistant.io/docs/mqtt/discovery/
 discovery_prefix="homeassistant"
 # In case several computers with 1090MHz receiver sent their data to the same instance of Home Assistant
-unique_id_suffix="_OdroidXU4"
+unique_id_suffix="_Pi4"
 # If use_device=1, a device identifer is added in the discovery messages. The name of the device is built from the sub_topic above and the unique_id_suffix
 # For instance: all sensors linked with the program fr24feed will be linked to the device "fr24feed_RPi4". It eases the integration in Home Assistant : by selected the device,
 # in Home Assistant configuration, an entity card with all the sensors linked to the device si ready to be included in Lovelace interface.
