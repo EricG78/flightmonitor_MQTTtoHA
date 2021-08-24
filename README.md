@@ -35,17 +35,22 @@ The script is a bash script with few dependencies: bc, jq and mosquitto-clients.
  |--------------|------------|
  ![Sensors available (service: active)](/images/ServiceStart-SensorsAvailable.png) | ![Sensors unavailable (service: stop)](/images/ServiceStop-SensorsUnavailable.png)
  
- ## Principles
- ### dump1090-fa
- The parameters of the MQTT message are derived from the JSON file `/run/dump1090-fa/aircraft.json` (which is also used to display the aircrafts on the map @ http://127.0.0.1:8080). For example:
+## Principles
+### dump1090-fa
+The parameters of the MQTT message are derived from the JSON file `/run/dump1090-fa/aircraft.json` (which is also used to display the aircrafts on the map @ http://127.0.0.1:8080). For example:
 ```JSON
 {
     "problem":"OFF",
     "total_aircraft":"14",
     "aircraft_with_positions":"11"
 }
+
 ```
-  ### fr24feed
+In Home Assistant,
+ * the fields problem is declared as binary sensors with device class "problem".
+ * the fields total_aircraft and aircraft_with_positions are declared as sensors.
+
+### fr24feed
 The parameters of the MQTT message are derived from the JSON file `http://127.0.0.1:8754/monitor.json` (which is also used for status available @ http://127.0.01:8754). For example:
 ```JSON
 {
@@ -58,9 +63,9 @@ The parameters of the MQTT message are derived from the JSON file `http://127.0.
 }
 ```
 In Home Assistant,
- * the fields problem mlat_problem are declared as binary sensors with device class "problem".
+ * the fields problem and mlat_problem are declared as binary sensors with device class "problem".
  * the field connection is declared as binary sensors with device class "connectivity".
- * the fields lastACsent, numACtracked and numACuploaded are declared as sensors
+ * the fields lastACsent, numACtracked and numACuploaded are declared as sensors.
 
 ### piaware
 The parameters of the MQTT message are derived from the output of the command `piaware-status`. For example:
@@ -79,6 +84,9 @@ The parameters of the MQTT message are derived from the output of the command `p
  In Home Assistant, 
   * the fields piaware_problem, faup1090_problem, faup978_problem, mlat_problem, dump1090_problem and data3005_problem are declared as binary sensors with device class "problem".
   * the fields faup1090dump1090_connection and piawareserver_connection are declared as binary sensors with device class "connectivity".
+
+### Home Assistant
+The script monitors the status of Home Assistant by subscribing to the topic `homeassistant/status`. If Home Assistant restarts, its status becomes `offline` and gets back to `online` when ready: this triggers that publishing by the script of the discovery messages.
  
  ## Problems and investigations
  This script has been tested on
