@@ -29,6 +29,8 @@ The script is a bash script with few dependencies: bc, jq and mosquitto-clients.
  When the above step is successful, you can run the install script:
  `sudo bash install.sh`
  It will create a file `flightmonitor_MQTTtoHA.service` which is copied to `/etc/systemd/system` directory and launch the service. The status of the service is displayed at the end of the install script. The status of the service is reflected in Home Assistant: sensors will be marked "unavailable" if the service is stopped.
+ Service active | Service stopped
+ --------------------------------
  ![Sensors available (service: active)](/images/ServiceStart-SensorsAvailable.png) | ![Sensors unavailable (service: stop)](/images/ServiceStop-SensorsUnavailable.png)
  
  ## Principles
