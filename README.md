@@ -21,7 +21,7 @@ The script is a bash script with few dependencies: bc, jq and mosquitto-clients.
   * configuration of Home Assistant: 
     * the topic prefix for discovery (by default `discovery_prefix`="homeassistant" as mentionned [here](https://www.home-assistant.io/docs/mqtt/discovery/))
     * a suffix (for instance the machine nickname "_RPi4-Kitchen") that is appended to the unique identifier of the sensors (in case the script runs on several machines connected to the same instance of Home Assistant)
-    * `use_device=0` or `use_device=1`. If `use_device` is equal to 1, the data associated with a source (i.e. fr24feed, dump1090-fa or piaware) are declared as entities linked to a device in Home Assistant. The device name is equal to the MQTT sub-topic appended with the `unique_id_suffix`. This option eases the integration in Home Assistant: when the device is selected in the 'Configuration' menu, an entity-card with all linked entities can be directly added to one of your panel.
+    * `use_device=0` or `use_device=1`. If `use_device` is equal to 1, the data associated with a source (i.e. fr24feed, dump1090-fa or piaware) are declared as entities linked to a device in Home Assistant. The device name is equal to the MQTT sub-topic appended with the `unique_id_suffix`. This option eases the integration in Home Assistant: when the device is selected in the 'Configuration' menu, an entity-card with all linked entities can be directly added to one of your panel. A screnshot is displayed below (with the parameters `dump1090_subtopic="dump1090` and `unique_id_suffix="_OdroidXU4"`):
     ![Add entities in Lovelace with the parameter use_device set to 1](/images/use_device_1_add_to_lovelace.png)
 3. Launch the script and check new entities are available in Home Assistant
   * `bash flightmonitor_MQTTtoHA.sh`
@@ -47,8 +47,8 @@ The parameters of the MQTT message are derived from the JSON file `/run/dump1090
 
 ```
 In Home Assistant,
- * the fields problem is declared as binary sensors with device class "problem".
- * the fields total_aircraft and aircraft_with_positions are declared as sensors.
+ * the fields `problem` is declared as binary sensors with device class "problem".
+ * the fields `total_aircraft` and `aircraft_with_positions` are declared as sensors.
 
 ### fr24feed
 The parameters of the MQTT message are derived from the JSON file `http://127.0.0.1:8754/monitor.json` (which is also used for status available @ http://127.0.01:8754). For example:
@@ -63,9 +63,9 @@ The parameters of the MQTT message are derived from the JSON file `http://127.0.
 }
 ```
 In Home Assistant,
- * the fields problem and mlat_problem are declared as binary sensors with device class "problem".
- * the field connection is declared as binary sensors with device class "connectivity".
- * the fields lastACsent, numACtracked and numACuploaded are declared as sensors.
+ * the fields `problem` and `mlat_problem` are declared as binary sensors with device class "problem".
+ * the field `connection` is declared as binary sensors with device class "connectivity".
+ * the fields `lastACsent`, `numACtracked` and `numACuploaded` are declared as sensors.
 
 ### piaware
 The parameters of the MQTT message are derived from the output of the command `piaware-status`. For example:
@@ -82,8 +82,8 @@ The parameters of the MQTT message are derived from the output of the command `p
 }
 ```
  In Home Assistant, 
-  * the fields piaware_problem, faup1090_problem, faup978_problem, mlat_problem, dump1090_problem and data3005_problem are declared as binary sensors with device class "problem".
-  * the fields faup1090dump1090_connection and piawareserver_connection are declared as binary sensors with device class "connectivity".
+  * the fields `piaware_problem`, `faup1090_problem`, `faup978_problem`, `mlat_problem`, `dump1090_problem` and `data3005_problem` are declared as binary sensors with device class "problem".
+  * the fields `faup1090dump1090_connection` and `piawareserver_connection` are declared as binary sensors with device class "connectivity".
 
 ### Home Assistant
 When the script or service is laucnhed, the MQTT discovery messages are published.
