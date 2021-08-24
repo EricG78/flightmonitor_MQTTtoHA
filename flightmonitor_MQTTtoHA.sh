@@ -284,7 +284,7 @@ changeStatus() {
 	if [ ! -z "$piaware_subtopic" ]; then
 		mosquitto_pub $mosquittoArgs -r -t $mqtt_topic_prefix/$piaware_subtopic/status -m "offline"
 	fi
-	logger $script End of script execution
+	logger -t $script End of script execution
 	exit
 }
 
