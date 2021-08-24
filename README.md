@@ -38,8 +38,15 @@ The script is a bash script with few dependencies: bc, jq and mosquitto-clients.
  ```
   ### fr24feed
 The parameters of the MQTT message are derived from the JSON file `http://127.0.0.1:8754/monitor.json` (which is also used for status available @ http://127.0.01:8754). For example:
- ```JSON
-{"problem":"OFF","connection":"ON","mlat_problem":"OFF","lastACsent":"1","numACtracked":"14","numACuploaded":9}
+```JSON
+{
+    "problem":"OFF",
+    "connection":"ON",
+    "mlat_problem":"OFF",
+    "lastACsent":"1",
+    "numACtracked":"14",
+    "numACuploaded":9
+}
 ```
 ### piaware
 The parameters of the MQTT message are derived from the output of the command `piaware-status`. For example:
