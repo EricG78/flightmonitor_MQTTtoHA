@@ -24,12 +24,12 @@ The script is a bash script with few dependencies: bc, jq and mosquitto-clients.
     * a suffix (for instance the machine nickname "_RPi4-Kitchen") that is appended to the unique identifier of the sensors (in case the script runs on several machines connected to the same instance of Home Assistant)
     * `use_device=0` or `use_device=1`. If `use_device` is equal to 1, the data associated with a source (i.e. fr24feed, dump1090-fa or piaware) are declared as entities linked to a device in Home Assistant. The device name is equal to the MQTT sub-topic appended with the `unique_id_suffix`. This option eases the integration in Home Assistant: when the device is selected in the 'Configuration' menu, an entity-card with all linked entities can be directly added to one of your panel. A screnshot is displayed below (with the parameters `dump1090_subtopic="dump1090"` and `unique_id_suffix="_OdroidXU4"`):
     ![Add entities in Lovelace with the parameter use_device set to 1](/images/use_device_1_add_to_lovelace.png)
-3. Launch the script and check new entities are available in Home Assistant
+3. Launch the script `flightmonitor_MQTTtoHA.sh` and check new entities are available in Home Assistant
   * `bash flightmonitor_MQTTtoHA.sh`
   * or `./flightmonitor_MQTTtoHA.sh` in case you previously set the execution permission to the file (`chmod a+x flightmonitor_MQTTtoHA.sh`)
  
  When the above step is successful, you can run the install script:
- `sudo bash install.sh`
+ `sudo bash install_service.sh`
  It will create a file `flightmonitor_MQTTtoHA.service` which is copied to `/etc/systemd/system` directory and launch the service. The status of the service is displayed at the end of the install script. The status of the service is reflected in Home Assistant: sensors will be marked "unavailable" if the service is stopped.
   
  | active       | stopped    |
