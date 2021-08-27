@@ -16,7 +16,7 @@
 
 # Check the script is ran with root priviledge
 if [ "$EUID" -ne 0 ]
-  then echo "Please run as root:\nsudo bash install_service.sh"
+  then echo -e "Please run as root:\nsudo bash install_service.sh"
   exit
 fi
 
