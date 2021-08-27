@@ -16,7 +16,7 @@
 
 # Check the script is ran with root priviledge
 if [ "$EUID" -ne 0 ]
-  then echo -e "Please run as root:\nsudo bash install_service.sh"
+  then echo "Please run as root"
   exit
 fi
 
@@ -59,17 +59,18 @@ user=$(who am i | awk '{print $1}')
 # Create service file
 tempFileName="$(cat /dev/urandom | tr -cd 'a-f0-9' | head -c 16).service"
 echo -e "\
-[Unit]\n \
+[Unit]\n\
 Description=Service to send through MQTT FR24feed, dump1090 and piAware information to Home Assistant\n \
-After=network.target\n\n \
-[Service]\n \
-Type=simple\n \
-User=$user\n \
-ExecStart=$execCmdLine\n \
-Restart=always\n \
-RestartSec=30\n\n \
-[Install]\n \
-WantedBy=user.target" >> $tempFileName
+After=network.target\n\n\
+[Service]\n\
+Type=simple\n\
+User=$user\n\
+Group=$user\n\
+ExecStart=$execCmdLine\n\
+Restart=always\n\
+RestartSec=30\n\n\
+[Install]\n\
+WantedBy=default.target" >> $tempFileName
 
 # Copy to the systemd directory
 cp $tempFileName /etc/systemd/system/$scriptName.service
