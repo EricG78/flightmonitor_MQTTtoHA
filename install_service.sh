@@ -62,7 +62,7 @@ dl_curl=`[ -z "$(which curl)" ] && echo "curl"`
 dl_mosquitto=`[ -z "$(which mosquitto_pub)" ] && echo "mosquitto-clients"`
 apt_arg="$dl_jq $dl_bc $dl_curl $dl_mosquitto"
 
-if [ ${#apt_arg} -gt 2 ]; then
+if [ ${#apt_arg} -gt 3 ]; then
         apt-get install $apt_arg
 fi
 
