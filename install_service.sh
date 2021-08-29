@@ -14,17 +14,53 @@
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+# Echo usage if something isn't right.
+usage() {
+    echo -e "Usage: sudo bash $0  [-t rate_s] [-h]\n\n\
+-t rate_s: rate_s shall be a numeric value. It defines the periodicity of the publishing of MQTT status messages (default value is 60s)
+-h display this help"  1>&2; exit 1;
+}
+
 # Check the script is ran with root priviledge
 if [ "$EUID" -ne 0 ]
   then echo "Please run as root"
   exit
 fi
 
+# Check if the default value is overwritten by argument -t
+update_rate=60
+while getopts ":t:h" o; do
+	case "${o}" in
+	t)
+		update_rate=${OPTARG}
+		if [ -n "$update_rate" ] && [ "$update_rate" -eq "$update_rate" ] 2>/dev/null; then
+			echo "Update rate: $update_rate seconds"
+		else
+			echo "Argument after -t shall be a number (update rate in seconds)"
+			usage
+		fi
+		;;
+	h)
+		usage
+		;;
+	:)
+		echo "ERROR: Option -$OPTARG requires an argument"
+		usage
+		;;
+	\?)
+		echo "ERROR: Invalid option -$OPTARG"
+		usage
+		;;
+	esac
+done
+shift $((OPTIND-1))
+
 # Check dependancies
 dl_jq=`[ -z "$(which jq)" ] && echo "jq"`
 dl_bc=`[ -z "$(which bc)" ] && echo "bc"`
+dl_curl=`[ -z "$(which curl)" ] && echo "curl"`
 dl_mosquitto=`[ -z "$(which mosquitto_pub)" ] && echo "mosquitto-clients"`
-apt_arg="$dl_jq $dl_bc $dl_mosquitto"
+apt_arg="$dl_jq $dl_bc $dl_curl $dl_mosquitto"
 
 if [ ${#apt_arg} -gt 2 ]; then
         apt-get install $apt_arg
@@ -51,7 +87,7 @@ if [ ! -f $scriptPath ]; then
 fi
 
 # Full command line
-execCmdLine="$bashPath $scriptPath"
+execCmdLine="$bashPath $scriptPath -d yes -r loop -t $update_rate"
 
 # Find user behind sudo
 user=$(who am i | awk '{print $1}')
