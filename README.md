@@ -12,8 +12,8 @@ The script has been written with the assumption of a standard installation of [F
   * In addition, piaware has been configured with receiver type set to 'beast' with the command: `sudo piaware-config receiver-type beast`.
 * [this page](https://www.flightradar24.com/share-your-data) for Flightradar24 (download and run bach script `install_fr24_rpi.sh`)
 
-The script is a bash script with few dependencies: bc, jq and mosquitto-clients. If not already on your machine, they can be installed by:
-`sudo apt-get install bc jq mosquitto-clients`
+The script is a bash script with few dependencies: bc, jq, curl and mosquitto-clients. If not already on your machine, they can be installed by:
+`sudo apt-get install bc jq curl mosquitto-clients`
 ### Installation steps:
 1. Clone this repository or copy/download the scripts on the Rapsberry Pi running ADS-B receiver (dump1090-fa) and the feeders (fr24feed and/or piaware)
 2. Edit the script file and set the values according to your configuration:
@@ -24,13 +24,24 @@ The script is a bash script with few dependencies: bc, jq and mosquitto-clients.
     * a suffix (for instance the machine nickname "_RPi4-Kitchen") that is appended to the unique identifier of the sensors (in case the script runs on several machines connected to the same instance of Home Assistant)
     * `use_device=0` or `use_device=1`. If `use_device` is equal to 1, the data associated with a source (i.e. fr24feed, dump1090-fa or piaware) are declared as entities linked to a device in Home Assistant. The device name is equal to the MQTT sub-topic appended with the `unique_id_suffix`. This option eases the integration in Home Assistant: when the device is selected in the 'Configuration' menu, an entity-card with all linked entities can be directly added to one of your panel. A screnshot is displayed below (with the parameters `dump1090_subtopic="dump1090"` and `unique_id_suffix="_OdroidXU4"`):
     ![Add entities in Lovelace with the parameter use_device set to 1](/images/use_device_1_add_to_lovelace.png)
+  * configuration of the execution of the script
+    * `pub_discovery="yes"` to publish the MQTT discovery messages to Home Assistant at the begining of the execution of the script, `pub_discovery="no"` not to publish them
+    * `run_mode="loop"` to publish the status messages periodically, `run_mode="once"` to publish them once and exit, `run_mode="no"` not to publish them
+    * `update_rate=60` which define the delay between the status messages (with `run_mode="loop"`)
+    
+    The three above parameters can be overwritten by launching the script with the arguments 
+    *  `-d [yes|no]` to overwrite `pub_discovery`
+    *  `-r [loop|once|no]` to overwrite `run_mode`
+    *  `-t nn` to overwrite `update_rate`
 3. Launch the script `flightmonitor_MQTTtoHA.sh` and check new entities are available in Home Assistant
   * `bash flightmonitor_MQTTtoHA.sh`
   * or `./flightmonitor_MQTTtoHA.sh` in case you previously set the execution permission to the file (`chmod a+x flightmonitor_MQTTtoHA.sh`)
  
- When the above step is successful, you can run the install script:
+ 4. When the above step is successful, you can run the install script:
  `sudo bash install_service.sh`
- It will create a file `flightmonitor_MQTTtoHA.service` which is copied to `/etc/systemd/system` directory and launch the service. The status of the service is displayed at the end of the install script. The status of the service is reflected in Home Assistant: sensors will be marked "unavailable" if the service is stopped.
+ It will create a file `flightmonitor_MQTTtoHA.service` which is copied to `/etc/systemd/system` directory and launch the service. The status of the service is displayed at the end of the install script. By default, the service is configured to send status messages every minute. This value can be changed by running the `install_service.sh` script with argument `-t` followed by the value in seconds. For example, for an update every 5 minutes: `sudo bash install_service.sh -t 300`.
+ 
+ The status of the service is reflected in Home Assistant: sensors will be marked "unavailable" if the service is stopped (or when the script in "loop" mode is stopped with Ctrl+C)
   
  | active       | stopped    |
  |--------------|------------|
