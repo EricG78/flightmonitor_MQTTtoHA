@@ -30,18 +30,23 @@ fr24feed_subtopic="fr24feed"
 dump1090_subtopic="dump1090"
 piaware_subtopic="piaware"
 
-# Delay between messages (in seconds)
-update_rate=60
 
 # Discovery prefix for Home Assistant (defualt is homeassistant. See https://www.home-assistant.io/docs/mqtt/discovery/
 discovery_prefix="homeassistant"
 # In case several computers with 1090MHz receiver sent their data to the same instance of Home Assistant
-unique_id_suffix="_Pi4"
+unique_id_suffix="_RPi4"
 # If use_device=1, a device identifer is added in the discovery messages. The name of the device is built from the sub_topic above and the unique_id_suffix
 # For instance: all sensors linked with the program fr24feed will be linked to the device "fr24feed_RPi4". It eases the integration in Home Assistant : by selected the device,
 # in Home Assistant configuration, an entity card with all the sensors linked to the device si ready to be included in Lovelace interface.
 use_device=1
 
+# Default parameters - can be overwritten by argument -r (run_mode) -d (pub_discovery) and -t (update_rate)
+# pub_discovery="yes": discovery messages are published, pub_discovery="no": they are not published
+pub_discovery="yes"
+# run_mode="loop": status message is published periodically, run_mode="once": it is published once, run_mode="no": it is not published
+run_mode="loop"
+# Delay between messages (in seconds) when run_mode="loop"
+update_rate=60
 
 ####################################
 # End of the configuration section #
@@ -85,7 +90,6 @@ fr24feedHADiscovery() {
 		cmd="mosquitto_pub $mosquittoArgs -r -t ${topiclist[$index]} -m '$msg'"
 		eval "$cmd"
 	done
-	mosquitto_pub $mosquittoArgs -r -t $mqtt_topic_prefix/$fr24feed_subtopic/status -m "online"
 }
 
 # Publish Home assistant MQTT discovery messages for dump1090-fa
@@ -111,7 +115,6 @@ dump1090HADiscovery() {
 		cmd="mosquitto_pub $mosquittoArgs -r -t ${topiclist[$index]} -m '$msg'"
 		eval "$cmd"
 	done
-	mosquitto_pub $mosquittoArgs -r -t $mqtt_topic_prefix/$dump1090_subtopic/status -m "online"
 }
 
 # Publish Home assistant MQTT discovery messages for piaware
@@ -157,7 +160,6 @@ piawareHADiscovery() {
 		cmd="mosquitto_pub $mosquittoArgs -r -t ${topiclist[$index]} -m '$msg'"
 		eval "$cmd"
 	done
-	mosquitto_pub $mosquittoArgs -r -t $mqtt_topic_prefix/$piaware_subtopic/status -m "online"
 }
 
 # Publish Home assistant MQTT discovery messages
@@ -291,57 +293,90 @@ changeStatus() {
 }
 
 logger -t $script Start of script execution
+
+# Echo usage if something isn't right.
+usage() {
+    echo -e "Usage: bash $0 [-d <yes|no>] [-r <loop|once|no>] [-t rate_s] [-h]\n\n\
+-d <yes|no>: MQTT Discovery messages are published (-d yes) or not pulbished (-d no)\n\
+-r <once|loop|no>: MQTT messages with information on the processes (fr24feed and/or dump1090-fa and/or piaware)\n\
+   - are pulished once (-r once) before the script exits\n\
+   - are published periodically (-r loop) in an endless loop \n\
+   - are not published (-r no) \n\
+-t rate_s: rate_s shall be a numeric value. It defines the periodicity of the publishing of MQTT status messages 
+-h display this help"  1>&2; exit 1;
+}
+
+
+#logger -t $script Start
+while getopts ":d:r:t:h" o; do
+	case "${o}" in
+        d)
+		pub_discovery=$(echo ${OPTARG}| tr '[:upper:]' '[:lower:]')
+		[ $pub_discovery != "yes" ] && [ $pub_discovery != "no" ] && usage
+		;;
+	r)
+		run_mode=$(echo ${OPTARG}| tr '[:upper:]' '[:lower:]')
+		[ $run_mode != "loop" ] && [ $run_mode != "once" ] && [ $run_mode != "no" ] && usage
+
+		;;
+	t)
+		update_rate=${OPTARG}
+		if [ -n "$update_rate" ] && [ "$update_rate" -eq "$update_rate" ] 2>/dev/null; then
+			echo "Update rate: $update_rate seconds"
+		else
+			echo "Argument after -t shall be a number (update rate in seconds)"
+			usage
+		fi
+		;;
+	h)
+		usage
+		;;
+	:)
+		echo "ERROR: Option -$OPTARG requires an argument"
+		usage
+		;;
+	\?)
+		echo "ERROR: Invalid option -$OPTARG"
+		usage
+		;;
+	esac
+done
+shift $((OPTIND-1))
+
+
+
+
 # trap script termination to update the status to "offline"
-trap changeStatus SIGINT
-trap changeStatus EXIT
+if [ "$run_mode" = "loop" ]; then
+	trap changeStatus SIGINT EXIT
+fi
 
 # Publish discovery messages to Home assistant
-#pubHAdiscoveryMsg
+if [ "$pub_discovery" = "yes" ]; then
+	pubHAdiscoveryMsg
+fi
 
-# Subscribe the topic giving the status of Home Assistant so that discovery can be re-plublished in case Home Assistant re-start
-fileHAstatus='/tmp/ha_status'
-mosquitto_sub $mosquittoArgs -t "$discovery_prefix/status" | stdbuf -oL uniq > "$fileHAstatus" &
 
 # Main loop
-i=0
-need_to_send_discovery=2
-
 while true; do
-	# Check the status of Home Assistant
-	ha_status=$(tail -n 1 "$fileHAstatus")
-	#echo "--->HA status: $ha_status"
-	if [ "$ha_status" == "online" ]; then
-		if [ $need_to_send_discovery -eq 1 ]; then
-			logger -t $script Home Assistant online again, sending discovery messages
-			pubHAdiscoveryMsg
-			need_to_send_discovery=0
-		fi
+	if [ ! -z "$dump1090_subtopic" ]; then
+		dump1090Update
+		mosquitto_pub $mosquittoArgs -t $mqtt_topic_prefix/$dump1090_subtopic -m $(echo $dump1090Msg | tr -d ' ')
+		mosquitto_pub $mosquittoArgs -r -t $mqtt_topic_prefix/$dump1090_subtopic/status -m "online"
 	fi
-	if [ "$ha_status" == "offline" ]; then
-		#echo "Home Assistant offline, discovery messages to be sent next time it is online"
-		need_to_send_discovery=1
+	if [ ! -z "$fr24feed_subtopic" ]; then
+		fr24feedUpdate
+		mosquitto_pub $mosquittoArgs -t $mqtt_topic_prefix/$fr24feed_subtopic -m $(echo $fr24feedMsg | tr -d ' ')
+		mosquitto_pub $mosquittoArgs -r -t $mqtt_topic_prefix/$fr24feed_subtopic/status -m "online"
 	fi
-	if [ $need_to_send_discovery -eq 2 ]; then
-		logger -t $script Sending Home Assistant discovery messages at script/service startup since it was not triggered by HA status
-		pubHAdiscoveryMsg
-		need_to_send_discovery=0
+	if [ ! -z "$piaware_subtopic" ]; then
+		piawareUpdate
+		mosquitto_pub $mosquittoArgs -t $mqtt_topic_prefix/$piaware_subtopic -m $(echo $piawareMsg | tr -d ' ')
+		mosquitto_pub $mosquittoArgs -r -t $mqtt_topic_prefix/$piaware_subtopic/status -m "online"
 	fi
-	if [ $i -gt $update_rate ]; then
-		#echo "Updating sensors"
-		if [ ! -z "$dump1090_subtopic" ]; then
-			dump1090Update
-			mosquitto_pub $mosquittoArgs -t $mqtt_topic_prefix/$dump1090_subtopic -m $(echo $dump1090Msg | tr -d ' ')
-		fi
-		if [ ! -z "$fr24feed_subtopic" ]; then
-			fr24feedUpdate
-			mosquitto_pub $mosquittoArgs -t $mqtt_topic_prefix/$fr24feed_subtopic -m $(echo $fr24feedMsg | tr -d ' ')
-		fi
-		if [ ! -z "$piaware_subtopic" ]; then
-			piawareUpdate
-			mosquitto_pub $mosquittoArgs -t $mqtt_topic_prefix/$piaware_subtopic -m $(echo $piawareMsg | tr -d ' ')
-		fi
-		i=0
+	if [ "$run_mode" = "once" ]; then
+		logger -t $script End of script execution
+		exit
 	fi
-	sleep 1
-	i=$((i+1))
+	sleep $update_rate
 done
